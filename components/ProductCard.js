@@ -13,13 +13,17 @@ export default function ProductCard({ producto, isAdmin, onEdit, onDelete }) {
       className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-2xl transition-shadow duration-300"
     >
       <div className="relative h-64 w-full overflow-hidden bg-gray-100">
-        <Image
-          src={producto.imagenURL}
-          alt={producto.nombre}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+        { (producto.imagen || producto.imagenURL) ? (
+          <Image
+            src={producto.imagen || producto.imagenURL}
+            alt={producto.nombre}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full w-full text-gray-400">No image</div>
+        )}
         <div className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
           €{producto.precio}
         </div>

@@ -41,8 +41,10 @@ export default function Home() {
   };
 
   const productosFiltrados = productos.filter(producto => {
-    const coincideBusqueda = producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-                            producto.descripcion.toLowerCase().includes(busqueda.toLowerCase());
+    const nombre = (producto.nombre || '').toString();
+    const descripcion = (producto.descripcion || '').toString();
+    const termino = (busqueda || '').toString().toLowerCase();
+    const coincideBusqueda = nombre.toLowerCase().includes(termino) || descripcion.toLowerCase().includes(termino);
     const coincideCategoria = categoriaActiva === 'todas' || producto.categoria === categoriaActiva;
     return coincideBusqueda && coincideCategoria;
   });
