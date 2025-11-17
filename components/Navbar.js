@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
+import CartDrawer from './CartDrawer';
 
 const CATEGORIES = [
   { id: 'todas', name: 'Todas', icon: '🏆' },
@@ -26,7 +28,9 @@ const CATEGORIES = [
 
 export default function Navbar({ onCategoryChange, onSearch }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const { items } = useCart();
+  const { wishlist } = useWishlist();
   const cartCount = (items || []).reduce((s, it) => s + (Number(it.quantity || 0)), 0);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -57,7 +61,7 @@ export default function Navbar({ onCategoryChange, onSearch }) {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: 'spring', stiffness: 100 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm"
+        className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-white/90 via-red-50/90 to-blue-50/90 backdrop-blur-xl border-b border-red-200/50 shadow-lg"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -68,37 +72,100 @@ export default function Navbar({ onCategoryChange, onSearch }) {
                 whileTap={{ scale: 0.95 }}
                 className="flex items-center space-x-2 cursor-pointer"
               >
-                <div className="text-2xl font-black bg-gradient-to-r from-blue-600 via-red-600 to-blue-600 bg-clip-text text-transparent">
+                <motion.div 
+                  animate={{ 
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                  }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                  className="text-2xl font-black bg-gradient-to-r from-red-600 via-blue-600 via-red-700 to-blue-700 dark:from-red-500 dark:via-blue-400 dark:to-red-600 bg-clip-text text-transparent bg-[length:200%_auto]"
+                >
                   LaTelaDelGol
-                </div>
-                <span className="text-2xl">⚽</span>
+                </motion.div>
+                <motion.span 
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                  className="text-2xl"
+                >⚽</motion.span>
               </motion.div>
             </Link>
 
             {/* Right side actions */}
             <div className="flex items-center space-x-4">
-              <Link href="/admin">
+              {/* Dark mode removed */}
+
+              {/* Wishlist Button */}
+              <Link href="/wishlist">
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="hidden sm:flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-full text-sm font-semibold shadow-lg hover:shadow-xl transition-shadow"
+                  className="hidden sm:flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-full text-sm font-bold shadow-lg hover:shadow-xl hover:shadow-red-500/50 transition-all relative"
+                  title="Lista de deseos"
                 >
-                  <span>🔐</span>
-                  <span>Admin</span>
+                  <span className="text-lg">❤️</span>
+                  {wishlist.length > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-black w-6 h-6 rounded-full flex items-center justify-center ring-2 ring-white"
+                    >
+                      {wishlist.length}
+                    </motion.span>
+                  )}
                 </motion.button>
               </Link>
 
-              <Link href="/cart" className="hidden sm:flex items-center space-x-2 px-3 py-2 bg-white/10 text-white rounded-full text-sm font-semibold shadow-sm hover:shadow-md transition-shadow">
-                <span>🛒</span>
-                <span>{cartCount > 0 ? cartCount : ''}</span>
+              <Link href="/admin">
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="hidden sm:flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-slate-800 via-slate-900 to-black text-white rounded-full text-sm font-bold shadow-xl hover:shadow-2xl hover:shadow-slate-700/50 transition-all relative overflow-hidden group"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-white/20"
+                    initial={{ x: '-100%' }}
+                    whileHover={{ x: '100%' }}
+                    transition={{ duration: 0.5 }}
+                  />
+                  <span className="relative z-10">🔐</span>
+                  <span className="relative z-10">Admin</span>
+                </motion.button>
               </Link>
+
+              <motion.button
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                id="nav-cart-button"
+                aria-label="Abrir carrito"
+                onClick={() => setIsCartOpen(true)}
+                className="hidden sm:flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full text-sm font-bold shadow-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all relative"
+              >
+                <span className="text-lg">🛍️</span>
+                {cartCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-black w-6 h-6 rounded-full flex items-center justify-center ring-2 ring-white"
+                  >
+                    {cartCount}
+                  </motion.span>
+                )}
+              </motion.button>
+              <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
               {/* Hamburger Button */}
               <motion.button
                 onClick={toggleMenu}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
-                className="relative w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-red-500 text-white shadow-lg"
+                animate={{ 
+                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+                }}
+                transition={{ 
+                  backgroundPosition: { duration: 3, repeat: Infinity, ease: 'linear' },
+                  scale: { duration: 0.2 },
+                  rotate: { duration: 0.3 }
+                }}
+                className="relative w-11 h-11 flex items-center justify-center rounded-full bg-gradient-to-r from-red-600 via-blue-600 to-slate-800 bg-[length:200%_auto] text-white shadow-xl hover:shadow-2xl"
               >
                 <motion.div
                   animate={isMenuOpen ? 'open' : 'closed'}
@@ -152,7 +219,7 @@ export default function Navbar({ onCategoryChange, onSearch }) {
               initial="closed"
               animate="open"
               exit="closed"
-              className="fixed top-0 left-0 bottom-0 w-80 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white shadow-2xl z-50 overflow-y-auto"
+              className="fixed top-0 left-0 bottom-0 w-80 bg-gradient-to-br from-slate-900 via-purple-900 via-pink-900 to-slate-900 text-white shadow-2xl z-50 overflow-y-auto"
             >
               <div className="p-6">
                 {/* Menu Header */}
@@ -161,7 +228,7 @@ export default function Navbar({ onCategoryChange, onSearch }) {
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-8"
                 >
-                  <h2 className="text-3xl font-black mb-2 bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent">
+                  <h2 className="text-3xl font-black mb-2 bg-gradient-to-r from-blue-400 via-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">
                     Menú
                   </h2>
                   <p className="text-sm text-gray-400">Explora nuestro catálogo</p>
@@ -190,12 +257,25 @@ export default function Navbar({ onCategoryChange, onSearch }) {
                         if (onCategoryChange) onCategoryChange(cat.id);
                         toggleMenu();
                       }}
-                      whileHover={{ x: 8, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
+                      whileHover={{ 
+                        x: 10, 
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        scale: 1.02
+                      }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-colors text-left group"
+                      className="w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all text-left group relative overflow-hidden"
                     >
-                      <span className="text-2xl group-hover:scale-110 transition-transform">{cat.icon}</span>
-                      <span className="font-medium text-gray-100 group-hover:text-white">{cat.name}</span>
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-pink-500/20 to-purple-500/0"
+                        initial={{ x: '-100%' }}
+                        whileHover={{ x: '100%' }}
+                        transition={{ duration: 0.6 }}
+                      />
+                      <motion.span 
+                        whileHover={{ scale: 1.2, rotate: 10 }}
+                        className="text-2xl group-hover:scale-110 transition-transform relative z-10"
+                      >{cat.icon}</motion.span>
+                      <span className="font-semibold text-gray-100 group-hover:text-white relative z-10">{cat.name}</span>
                     </motion.button>
                   ))}
                 </div>

@@ -41,7 +41,12 @@ export async function POST(req) {
 
     // Build HTML body
     const itemsHtml = (items || []).map(it => {
-      return `<tr><td style="padding:8px;border:1px solid #eee">${escapeHtml(it.nombre)}</td><td style="padding:8px;border:1px solid #eee;text-align:center">${escapeHtml(String(it.quantity || 1))}</td><td style="padding:8px;border:1px solid #eee;text-align:right">€${(Number(it.precio||0)*Number(it.quantity||1)).toFixed(2)}</td></tr>`;
+        return `<tr>
+          <td style="padding:8px;border:1px solid #eee">${escapeHtml(it.nombre)}</td>
+          <td style="padding:8px;border:1px solid #eee;text-align:center">${escapeHtml(it.talla || '-')}</td>
+          <td style="padding:8px;border:1px solid #eee;text-align:center">${escapeHtml(String(it.quantity || 1))}</td>
+          <td style="padding:8px;border:1px solid #eee;text-align:right">€${(Number(it.precio||0)*Number(it.quantity||1)).toFixed(2)}</td>
+        </tr>`;
     }).join('');
 
     const html = `
@@ -50,7 +55,12 @@ export async function POST(req) {
       <p><strong>Email:</strong> ${escapeHtml(email)}</p>
       <table style="border-collapse:collapse;width:100%;margin-top:16px">
         <thead>
-          <tr><th style="padding:8px;border:1px solid #eee;text-align:left">Producto</th><th style="padding:8px;border:1px solid #eee">Cant.</th><th style="padding:8px;border:1px solid #eee;text-align:right">Subtotal</th></tr>
+            <tr>
+              <th style="padding:8px;border:1px solid #ddd;text-align:left">Producto</th>
+              <th style="padding:8px;border:1px solid #ddd;text-align:center">Talla</th>
+              <th style="padding:8px;border:1px solid #ddd;text-align:center">Cant.</th>
+              <th style="padding:8px;border:1px solid #ddd;text-align:right">Subtotal</th>
+            </tr>
         </thead>
         <tbody>
           ${itemsHtml}

@@ -60,9 +60,12 @@ export default function CartPage() {
                   <div className="flex items-center justify-center h-full text-gray-400">No image</div>
                 )}
               </div>
-              <div className="flex-1">
-                <div className="font-semibold">{it.nombre}</div>
-                <div className="text-sm text-gray-600">€{it.precio}</div>
+                <div className="flex-1">
+                  <div className="font-medium">{it.nombre}</div>
+                  {it.talla ? (
+                    <div className="text-sm text-gray-600">Talla: {it.talla}</div>
+                  ) : null}
+                  <div className="text-sm text-gray-600">{it.quantity} x <span className="text-black font-semibold">{it.precio} €</span></div>
               </div>
               <div className="flex items-center space-x-2">
                 <button onClick={() => updateQuantity(it.id, Math.max(1, (it.quantity || 1) - 1))} className="px-3 py-2 bg-gray-100 rounded">−</button>

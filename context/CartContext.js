@@ -9,6 +9,7 @@ const ACTIONS = {
   ADD_ITEM: 'ADD_ITEM',
   REMOVE_ITEM: 'REMOVE_ITEM',
   UPDATE_QTY: 'UPDATE_QTY',
+  SET_ALL: 'SET_ALL',
   CLEAR_CART: 'CLEAR_CART'
 };
 
@@ -28,6 +29,8 @@ function cartReducer(state, action) {
       return state.map(i => i.id === action.payload.id ? { ...i, quantity: action.payload.quantity } : i);
     case ACTIONS.CLEAR_CART:
       return [];
+    case ACTIONS.SET_ALL:
+      return Array.isArray(action.payload) ? action.payload : state;
     default:
       return state;
   }
@@ -36,15 +39,25 @@ function cartReducer(state, action) {
 const LS_KEY = 'lateladelgol_cart_v1';
 
 export function CartProvider({ children }) {
-  const [state, dispatch] = useReducer(cartReducer, [], () => {
-    try {
-      const raw = typeof window !== 'undefined' ? localStorage.getItem(LS_KEY) : null;
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) {
-      return [];
-    }
-  });
+  // Initialize with empty array on both server and client to keep SSR markup stable.
+  const [state, dispatch] = useReducer(cartReducer, []);
 
+  // After mount, load persisted cart from localStorage (client-only) and replace state.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          dispatch({ type: ACTIONS.SET_ALL, payload: parsed });
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  // Persist whenever state changes (client-side only)
   useEffect(() => {
     try {
       localStorage.setItem(LS_KEY, JSON.stringify(state));
