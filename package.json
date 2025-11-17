@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "export:cloudinary": "node ./scripts/run-export.js"
+    "export:cloudinary": "node ./scripts/run-export.js",
+    "export:firestore": "node ./scripts/run-export-firestore.js"
   },
   "dependencies": {
     "cloudinary": "^2.8.0",
